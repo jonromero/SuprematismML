@@ -23,8 +23,8 @@ from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import EarlyStopping
 
-SHAPE_SIZE=64
-NUM_OF_SAMPLES=10000
+SHAPE_SIZE=8
+NUM_OF_SAMPLES=50000
 RECTANGLE = 0
 CIRCLE = 1
 
@@ -38,7 +38,7 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
     shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
     shape.rectangle(((px1,py1),(px2,py2)), outline="green")
 
-    img.save('Data2Img/image_from_data'+id+'my.png')
+    img.save('Data2Img/image_from_data-'+id+'-.png')
     if show:
         img.show()
 
@@ -88,7 +88,7 @@ model = Sequential([
 model.compile(optimizer='adam', loss='mean_squared_error')
 
 # Train
-model.fit(train_X, train_y, epochs=10, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=50, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
