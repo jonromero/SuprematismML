@@ -22,14 +22,14 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.callbacks import EarlyStopping
 
-SHAPE_SIZE=8
+SHAPE_SIZE=16
 NUM_OF_SAMPLES=10000
 RECTANGLE = 0
 CIRCLE = 1
 
 def image_from_data(image_data, test_coordinates, predict_coordinates, id='', show=False):
-    test_coordinates = test_coordinates * SHAPE_SIZE
-    predict_coordinates = predict_coordinates * SHAPE_SIZE
+    test_coordinates = test_coordinates
+    predict_coordinates = predict_coordinates
 
     tx1, ty1, tx2, ty2 = test_coordinates
     px1, py1, px2, py2 = predict_coordinates
@@ -47,7 +47,7 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
 def create_random_shape(id=None, save=False):
     x1, y1, x2, y2 = random.sample(range(0, SHAPE_SIZE), 4)
 
-    canvas = Image.new("1", (SHAPE_SIZE, SHAPE_SIZE), "white")
+    canvas = Image.new("L", (SHAPE_SIZE, SHAPE_SIZE), "white")
     shape = ImageDraw.Draw(canvas)
     type_of_shape = RECTANGLE # TODO: this need one-hot vector
     shape.rectangle(((x1,y1),(x2,y2)), fill="black")
@@ -72,8 +72,8 @@ data_input = np.array(map(lambda x: x[0], generated_data))
 data_validate = np.array(map(lambda x: x[1:][0], generated_data))
 
 # Normalize data
-data_input = (data_input.reshape(NUM_OF_SAMPLES, -1) - np.mean(data_input)) / float(np.std(data_input))
-data_validate = (data_validate.reshape(NUM_OF_SAMPLES, -1) - np.mean(data_input))/ float(SHAPE_SIZE)
+data_input = (data_input.reshape(NUM_OF_SAMPLES, -1)) / float(NUM_OF_SAMPLES)
+data_validate = (data_validate.reshape(NUM_OF_SAMPLES, -1))/ float(SHAPE_SIZE)
 
 def create_train_set(data):
     # use 80% for train, 20% for test
@@ -106,6 +106,11 @@ model.summary()
 
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
+
+test_X = test_X * NUM_OF_SAMPLES
+test_y = test_y * SHAPE_SIZE
+test_y_predictions = test_y_predictions*SHAPE_SIZE
+
 print("first element of prediction")
 print(test_y_predictions[0])
 print(test_y[0])
