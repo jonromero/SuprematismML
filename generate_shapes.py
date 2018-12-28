@@ -23,8 +23,8 @@ from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import SGD
 
-SHAPE_SIZE=8
-NUM_OF_SAMPLES=10000
+SHAPE_SIZE=16
+NUM_OF_SAMPLES=50000
 RECTANGLE = 0
 CIRCLE = 1
 
@@ -32,14 +32,14 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
     test_coordinates = test_coordinates
     predict_coordinates = predict_coordinates
 
-    tx1, ty1, tx2, ty2 = test_coordinates
-    px1, py1, px2, py2 = predict_coordinates
+    tx, ty, tw, th = test_coordinates
+    px, py, pw, ph = predict_coordinates
 
-    img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE))
-    img = img.convert('RGB')
+    img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE), '1')
+    img = img.convert("RGB")
     shape = ImageDraw.Draw(img)
-    shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
-    shape.rectangle(((px1,py1),(px2,py2)), outline="green")
+    shape.rectangle(((tx,ty),(tx+tw,ty+th)), outline="red")
+    shape.rectangle(((px,py),(px+pw,py+ph)), outline="green")
 
     img.save('Data2Img/image_from_data-'+id+'-.png')
     if show:
@@ -71,23 +71,27 @@ for r_shape in range(NUM_OF_SAMPLES):
 
 # train data X is the image
 # train data y is the validate data: shape and coordinates
-data_input = np.zeros((NUM_OF_SAMPLES, SHAPE_SIZE*SHAPE_SIZE))
+data_input = np.zeros((NUM_OF_SAMPLES, SHAPE_SIZE,SHAPE_SIZE))
 data_validate = np.zeros((NUM_OF_SAMPLES,4))
 
-#for gen_index in range(NUM_OF_SAMPLES):
-#    x1, y1, x2, y2 = random.sample(range(0, SHAPE_SIZE), 4)
-#    data_input[gen_index, x1:x1+y2, y1:y1+x2] = 1
-#    data_validate[gen_index] = [x1, y1, x2, y2]    
-
 for gen_index in range(NUM_OF_SAMPLES):
-    data_input[gen_index] = generated_data[gen_index][0].ravel()
-    data_validate[gen_index] = generated_data[gen_index][1]
+    w, h = np.random.randint(1, SHAPE_SIZE, size=2)
+    x = np.random.randint(0, SHAPE_SIZE - w)
+    y = np.random.randint(0, SHAPE_SIZE - h)
+    data_input[gen_index, x:x+w, y:y+h] = 1
+    data_validate[gen_index] = [x, y, w, h]    
+
+
+#for gen_index in range(NUM_OF_SAMPLES):
+#    data_input[gen_index] = generated_data[gen_index][0].ravel()
+#    data_validate[gen_index] = generated_data[gen_index][1]
 
 #data_input = np.array(map(lambda x: x[0], generated_data))
 #data_validate = np.array(map(lambda x: x[1:][0], generated_data))
 
 # Normalize data
-data_input = data_input / np.std(data_input)
+st_dev_data_input = np.std(data_input)
+data_input = (data_input.reshape(NUM_OF_SAMPLES, -1)) / st_dev_data_input  #data_input / np.std(data_input)
 data_validate = data_validate / SHAPE_SIZE
 
 def create_train_set(data):
@@ -97,7 +101,6 @@ def create_train_set(data):
     test_test = data[i:]
     
     return train_set, test_test
-
 train_X, test_X = create_train_set(data_input)
 train_y, test_y = create_train_set(data_validate)
 
@@ -121,7 +124,7 @@ model.summary()
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
 
-test_X = test_X * NUM_OF_SAMPLES
+test_X = test_X * st_dev_data_input 
 test_y = (test_y * SHAPE_SIZE).astype(int)
 test_y_predictions = (test_y_predictions*SHAPE_SIZE).astype(int)
 
