@@ -22,8 +22,8 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.callbacks import EarlyStopping
 
-SHAPE_SIZE=16
-NUM_OF_SAMPLES=10000
+SHAPE_SIZE=8
+NUM_OF_SAMPLES=1000
 RECTANGLE = 0
 CIRCLE = 1
 
@@ -37,7 +37,7 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
     img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE))
     img = img.convert('RGB')
     shape = ImageDraw.Draw(img)
-    shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
+    #shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
     shape.rectangle(((px1,py1),(px2,py2)), outline="green")
 
     img.save('Data2Img/image_from_data-'+id+'-.png')
@@ -108,14 +108,14 @@ model.summary()
 test_y_predictions = model.predict(test_X)
 
 test_X = test_X * NUM_OF_SAMPLES
-test_y = test_y * SHAPE_SIZE
-test_y_predictions = test_y_predictions*SHAPE_SIZE
+test_y = (test_y * SHAPE_SIZE).astype(int)
+test_y_predictions = (test_y_predictions*SHAPE_SIZE).astype(int)
 
 print("first element of prediction")
 print(test_y_predictions[0])
 print(test_y[0])
 print(test_X[0])
-image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=True)
+image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=False)
 
 for i in range(1, len(test_y_predictions)):
     image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
