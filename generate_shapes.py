@@ -23,12 +23,12 @@ from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import EarlyStopping
 
-SHAPE_SIZE=16
-NUM_OF_SAMPLES=5000
+SHAPE_SIZE=64
+NUM_OF_SAMPLES=10000
 RECTANGLE = 0
 CIRCLE = 1
 
-def image_from_data(image_data, test_coordinates, predict_coordinates, show=False):
+def image_from_data(image_data, test_coordinates, predict_coordinates, id='', show=False):
     tx1, ty1, tx2, ty2, color = test_coordinates
     px1, py1, px2, py2, color = predict_coordinates
 
@@ -38,7 +38,7 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, show=Fals
     shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
     shape.rectangle(((px1,py1),(px2,py2)), outline="green")
 
-    img.save('my.png')
+    img.save('Data2Img/image_from_data'+id+'my.png')
     if show:
         img.show()
 
@@ -104,4 +104,4 @@ print(test_X[0])
 image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=True)
 
 for i in range(1, len(test_y_predictions)):
-    image_from_data(test_X[i], test_y[i], test_y_predictions[i])
+    image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
