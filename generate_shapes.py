@@ -62,7 +62,7 @@ def create_random_shape(id=None, save=False):
     shape_np[shape_np == 255] = 0
     
     # return the image in numpy, the bounding box and the type
-    return(shape_np, np.array([x1, y1, x2, y2]))
+    return(shape_np, [x1, y1, x2, y2])
 
 # I lost so many hours by doing this in map
 generated_data = []
@@ -71,26 +71,24 @@ for r_shape in range(NUM_OF_SAMPLES):
 
 # train data X is the image
 # train data y is the validate data: shape and coordinates
-data_input = np.zeros((NUM_OF_SAMPLES, SHAPE_SIZE, SHAPE_SIZE))
+data_input = np.zeros((NUM_OF_SAMPLES, SHAPE_SIZE*SHAPE_SIZE))
 data_validate = np.zeros((NUM_OF_SAMPLES,4))
 
-# or gen_index in range(NUM_OF_SAMPLES):
+#for gen_index in range(NUM_OF_SAMPLES):
 #    x1, y1, x2, y2 = random.sample(range(0, SHAPE_SIZE), 4)
 #    data_input[gen_index, x1:x1+y2, y1:y1+x2] = 1
 #    data_validate[gen_index] = [x1, y1, x2, y2]    
 
 for gen_index in range(NUM_OF_SAMPLES):
-    data_input[gen_index] = generated_data[gen_index][0]
+    data_input[gen_index] = generated_data[gen_index][0].ravel()
     data_validate[gen_index] = generated_data[gen_index][1]
 
 #data_input = np.array(map(lambda x: x[0], generated_data))
 #data_validate = np.array(map(lambda x: x[1:][0], generated_data))
 
 # Normalize data
-data_input = (data_input.reshape(NUM_OF_SAMPLES, -1)) / np.std(data_input)
-data_validate = (data_validate.reshape(NUM_OF_SAMPLES, -1))/ SHAPE_SIZE
-
-print data_validate
+data_input = data_input / np.std(data_input)
+data_validate = data_validate / SHAPE_SIZE
 
 def create_train_set(data):
     # use 80% for train, 20% for test
@@ -106,7 +104,7 @@ train_y, test_y = create_train_set(data_validate)
 # Build the model.
 model = Sequential([
         Dense(200, activation='relu', input_dim=data_input.shape[-1]), 
-        Dropout(0.2), 
+        Dropout(0.4), 
         Dense(data_validate.shape[-1])
     ])
 
@@ -123,12 +121,9 @@ model.summary()
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
 
-# Reshape the data before normalization
-# pred_bboxes.reshape(len(pred_bboxes), num_objects, -1)
 test_X = test_X * NUM_OF_SAMPLES
-test_y = (test_y * SHAPE_SIZE)#.astype(int)
-test_y_predictions = (test_y_predictions*SHAPE_SIZE)#.astype(int)
-
+test_y = (test_y * SHAPE_SIZE).astype(int)
+test_y_predictions = (test_y_predictions*SHAPE_SIZE).astype(int)
 
 print("first element of prediction")
 print(test_y_predictions[0])
