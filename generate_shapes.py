@@ -20,20 +20,22 @@ import numpy as np
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
-from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import EarlyStopping
 
 SHAPE_SIZE=8
-NUM_OF_SAMPLES=50000
+NUM_OF_SAMPLES=10000
 RECTANGLE = 0
 CIRCLE = 1
 
 def image_from_data(image_data, test_coordinates, predict_coordinates, id='', show=False):
-    tx1, ty1, tx2, ty2, color = test_coordinates
-    px1, py1, px2, py2, color = predict_coordinates
+    test_coordinates = test_coordinates * SHAPE_SIZE
+    predict_coordinates = predict_coordinates * SHAPE_SIZE
 
-    img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE,4))
+    tx1, ty1, tx2, ty2 = test_coordinates
+    px1, py1, px2, py2 = predict_coordinates
 
+    img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE))
+    img = img.convert('RGB')
     shape = ImageDraw.Draw(img)
     shape.rectangle(((tx1,ty1),(tx2,ty2)), outline="red")
     shape.rectangle(((px1,py1),(px2,py2)), outline="green")
@@ -45,18 +47,22 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
 def create_random_shape(id=None, save=False):
     x1, y1, x2, y2 = random.sample(range(0, SHAPE_SIZE), 4)
 
-    canvas = Image.new('RGBA', (SHAPE_SIZE, SHAPE_SIZE), "white")
+    canvas = Image.new("1", (SHAPE_SIZE, SHAPE_SIZE), "white")
     shape = ImageDraw.Draw(canvas)
     type_of_shape = RECTANGLE # TODO: this need one-hot vector
     shape.rectangle(((x1,y1),(x2,y2)), fill="black")
     if save:
         canvas.save("Data/output"+str(id)+".png", "PNG")
 
-    shape_np = np.array(canvas)
-    shape_np = shape_np.reshape(SHAPE_SIZE*SHAPE_SIZE*4)
+    shape_np = np.array(canvas, dtype=np.float64)
+    shape_np = shape_np.ravel()
+
+    # replace 255 with 1
+    #shape_np[shape_np > 255] = 1
+    #shape_np = shape_np.reshape(SHAPE_SIZE,SHAPE_SIZE)
     
     # return the image in numpy, the bounding box and the type
-    return(shape_np, np.array([x1, y1, x2, y2, type_of_shape]))
+    return(shape_np, np.array([x1, y1, x2, y2]))
 
 generated_data = map(create_random_shape, range(NUM_OF_SAMPLES))
 
@@ -64,6 +70,10 @@ generated_data = map(create_random_shape, range(NUM_OF_SAMPLES))
 # train data y is the validate data: shape and coordinates
 data_input = np.array(map(lambda x: x[0], generated_data))
 data_validate = np.array(map(lambda x: x[1:][0], generated_data))
+
+# Normalize data
+data_input = (data_input.reshape(NUM_OF_SAMPLES, -1) - np.mean(data_input)) / float(np.std(data_input))
+data_validate = (data_validate.reshape(NUM_OF_SAMPLES, -1) - np.mean(data_input))/ float(SHAPE_SIZE)
 
 def create_train_set(data):
     # use 80% for train, 20% for test
@@ -79,16 +89,15 @@ train_y, test_y = create_train_set(data_validate)
 # Build the model.
 model = Sequential([
         Dense(200, activation='relu', input_dim=data_input.shape[-1]), 
-        Dense(200, activation='relu'),
         #Flatten(),
-        Dropout(0.2), 
+        Dropout(0.4), 
         Dense(data_validate.shape[-1])
     ])
 
-model.compile(optimizer='adam', loss='mean_squared_error')
+model.compile(optimizer='adadelta', loss='mse')
 
 # Train
-model.fit(train_X, train_y, epochs=50, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
@@ -105,3 +114,4 @@ image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=True)
 
 for i in range(1, len(test_y_predictions)):
     image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
+
