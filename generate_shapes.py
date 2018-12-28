@@ -23,12 +23,12 @@ from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.callbacks import EarlyStopping
 
-SHAPE_SIZE=64
-NUM_OF_SAMPLES=10000
+SHAPE_SIZE=16
+NUM_OF_SAMPLES=5000
 RECTANGLE = 0
 CIRCLE = 1
 
-def show_image(image_data, test_coordinates, predict_coordinates):
+def image_from_data(image_data, test_coordinates, predict_coordinates, show=False):
     tx1, ty1, tx2, ty2, color = test_coordinates
     px1, py1, px2, py2, color = predict_coordinates
 
@@ -39,7 +39,8 @@ def show_image(image_data, test_coordinates, predict_coordinates):
     shape.rectangle(((px1,py1),(px2,py2)), outline="green")
 
     img.save('my.png')
-    img.show()
+    if show:
+        img.show()
 
 def create_random_shape(id=None, save=False):
     x1, y1, x2, y2 = random.sample(range(0, SHAPE_SIZE), 4)
@@ -79,15 +80,15 @@ train_y, test_y = create_train_set(data_validate)
 model = Sequential([
         Dense(200, activation='relu', input_dim=data_input.shape[-1]), 
         Dense(200, activation='relu'),
-        Flatten(),
+        #Flatten(),
         Dropout(0.2), 
         Dense(data_validate.shape[-1])
     ])
-    
-model.compile(optimizer='adadelta', loss='mse')
+
+model.compile(optimizer='adam', loss='mean_squared_error')
 
 # Train
-model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=10, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
@@ -100,4 +101,7 @@ print("first element of prediction")
 print(test_y_predictions[0])
 print(test_y[0])
 print(test_X[0])
-show_image(test_X[0], test_y[0], test_y_predictions[0])
+image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=True)
+
+for i in range(1, len(test_y_predictions)):
+    image_from_data(test_X[i], test_y[i], test_y_predictions[i])
