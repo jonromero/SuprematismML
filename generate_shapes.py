@@ -23,8 +23,8 @@ from tensorflow.keras.layers import Dense, Activation, Dropout, Flatten
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import SGD
 
-SHAPE_SIZE=16
-NUM_OF_SAMPLES=50000
+SHAPE_SIZE=512
+NUM_OF_SAMPLES=1000
 RECTANGLE = 0
 CIRCLE = 1
 
@@ -114,7 +114,7 @@ model = Sequential([
 model.compile(optimizer='adadelta', loss='mse')
 
 # Train
-model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=100, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
