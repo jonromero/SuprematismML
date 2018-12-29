@@ -123,8 +123,8 @@ model.summary()
 test_y_predictions = model.predict(test_X)
 
 test_X = test_X * st_dev_data_input 
-test_y = (test_y * SHAPE_SIZE).astype(int)
-test_y_predictions = (test_y_predictions*SHAPE_SIZE).astype(int)
+test_y = test_y * SHAPE_SIZE
+test_y_predictions = np.round(test_y_predictions*SHAPE_SIZE)
 
 print("first element of prediction")
 print(test_y_predictions[0])
