@@ -30,28 +30,28 @@ def image_from_data(image_data, test_coordinates, predict_coordinates, id='', sh
     test_coordinates = test_coordinates
     predict_coordinates = predict_coordinates
 
-    tx, ty, tx2, ty2 = test_coordinates
-    px, py, px2, py2 = predict_coordinates
+    tx, ty, tx1, ty1 = test_coordinates
+    px, py, px1, py1 = predict_coordinates
 
     img = Image.fromarray(image_data.reshape(SHAPE_SIZE,SHAPE_SIZE), '1')
     img = img.convert("RGB")
     shape = ImageDraw.Draw(img)
-    shape.rectangle(((tx,ty),(tx2,ty2)), outline="red")
-    shape.rectangle(((px,py),(px2,py2)), outline="green")
+    shape.rectangle(((tx,ty),(tx1,ty1)), outline="red")
+    shape.rectangle(((px,py),(px1,py1)), outline="green")
 
     img.save('Data2Img/image_from_data-'+id+'-.png')
     if show:
         img.show()
 
-def create_random_shape(id=None, save=True):    
-    x2, y2 = np.random.randint(1, SHAPE_SIZE, size=2)
-    x1 = np.random.randint(0, SHAPE_SIZE - x2)
-    y1 = np.random.randint(0, SHAPE_SIZE - y2)
+def create_random_shape(id=None, save=False):    
+    x1, y1 = np.random.randint(1, SHAPE_SIZE, size=2)
+    x2 = np.random.randint(x1, SHAPE_SIZE)
+    y2 = np.random.randint(y1, SHAPE_SIZE)
     
     canvas = Image.new("L", (SHAPE_SIZE, SHAPE_SIZE), "white")
     shape = ImageDraw.Draw(canvas)
-    type_of_shape = RECTANGLE # TODO: this need one-hot vector
-    shape.rectangle(((x1,y1),(x1+x2,y1+y2)), fill="black")
+    #type_of_shape = RECTANGLE # TODO: this need one-hot vector
+    shape.rectangle(((x1,y1),(x2,y2)), fill="black")
     if save:
         canvas.save("Data/output"+str(id)+".png", "PNG")
 
@@ -88,7 +88,7 @@ train_y, test_y = create_train_set(data_validate)
 # Build the model.
 model = Sequential([
         Dense(200, activation='relu', input_dim=data_input.shape[-1]), 
-        Dropout(0.4), 
+        #Dropout(0.4), 
         Dense(data_validate.shape[-1])
     ])
 
@@ -119,3 +119,7 @@ image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=False)
 for i in range(1, len(test_y_predictions)):
     image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
 
+def calc_rate(pred_set, test_test):
+    return(np.diff(pred_set, test_test))
+
+print(calc_rate(test_y_predictions, pred_set))
