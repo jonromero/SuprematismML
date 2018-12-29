@@ -25,9 +25,6 @@ RECTANGLE = 0
 CIRCLE = 1
 
 def image_from_data(image_data, test_coordinates, predict_coordinates, id='', show=False):
-    test_coordinates = test_coordinates
-    predict_coordinates = predict_coordinates
-
     tx, ty, tx1, ty1 = test_coordinates
     px, py, px1, py1 = predict_coordinates
 
@@ -69,7 +66,9 @@ data_validate = np.array(map(lambda x: x[1:][0], generated_data))
 
 # Normalize data
 st_dev_data_input = np.std(data_input)
-data_input = data_input.reshape(NUM_OF_SAMPLES, -1) / st_dev_data_input 
+data_input = data_input.reshape(NUM_OF_SAMPLES, -1) #/ st_dev_data_input
+#data_input[data_input == 1] = 1
+data_input[data_input > 1] = 0 
 data_validate = data_validate.reshape(NUM_OF_SAMPLES, -1) / float(SHAPE_SIZE)
 
 def create_train_set(data):
@@ -82,6 +81,9 @@ def create_train_set(data):
 
 train_X, test_X = create_train_set(data_input)
 train_y, test_y = create_train_set(data_validate)
+
+print data_input
+print data_input.shape
 
 # Build the model.
 model = Sequential([
