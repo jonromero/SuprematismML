@@ -13,7 +13,7 @@ from tensorflow.keras.models import load_model
 
 MAX_SHAPE_SIZE = 8
 
-filename = "shape_test.png"
+filename = "test_extract_data/shape_test.png"
 
 # convert image file to 1-d numpy array
 # good luck with colors
@@ -44,7 +44,7 @@ def build_image(coordinates):
     shape = ImageDraw.Draw(canvas)
 
     shape.rectangle(((x1,y1),(x2,y2)), fill="black")
-    canvas.save("extracted_shape.png", "PNG")
+    canvas.save("test_extract_data/extracted_shape.png", "PNG")
 
 # let's recreate the image
 build_image(coordinates[0])
