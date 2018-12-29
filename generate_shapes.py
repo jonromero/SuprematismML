@@ -101,7 +101,7 @@ model.summary()
 
 # save the model
 print("----------Saving the model------------")
-model.save('shape_reko_'+str(SHAPE_SIZE)+'x'+str(SHAPE_SIZE)+'.h5')
+model.save('models/shape_reko_'+str(SHAPE_SIZE)+'x'+str(SHAPE_SIZE)+'.h5')
 
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
