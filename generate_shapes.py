@@ -22,7 +22,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout
 
 SHAPE_SIZE=8
-NUM_OF_SAMPLES=10000
+NUM_OF_SAMPLES=5000
 RECTANGLE = 0
 CIRCLE = 1
 
@@ -87,8 +87,9 @@ train_y, test_y = create_train_set(data_validate)
 
 # Build the model.
 model = Sequential([
-        Dense(200, activation='relu', input_dim=data_input.shape[-1]), 
-        #Dropout(0.4), 
+        Dense(100, activation='relu', input_dim=data_input.shape[-1]), 
+        Dense(100),
+        #Dropout(0.2), 
         Dense(data_validate.shape[-1])
     ])
 
@@ -119,5 +120,5 @@ image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=False)
 for i in range(1, len(test_y_predictions)):
     image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
 
-success_rate = (100 - np.mean(test_y_predictions != test_y))
-print("Success rate:", success_rate)
+success_rate = (100 - (np.mean(test_y_predictions != test_y)*100))
+print("Success rate (%): ", success_rate)
