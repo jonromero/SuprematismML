@@ -65,8 +65,7 @@ data_input = np.array(map(lambda x: x[0], generated_data))
 data_validate = np.array(map(lambda x: x[1:][0], generated_data))
 
 # Normalize data
-st_dev_data_input = np.std(data_input)
-data_input = data_input.reshape(NUM_OF_SAMPLES, -1) #/ st_dev_data_input
+data_input = data_input.reshape(NUM_OF_SAMPLES, -1) 
 #data_input[data_input == 1] = 1
 data_input[data_input > 1] = 0 
 data_validate = data_validate.reshape(NUM_OF_SAMPLES, -1) / float(SHAPE_SIZE)
@@ -96,7 +95,7 @@ model = Sequential([
 model.compile(optimizer='adadelta', loss='mean_squared_error')
 
 # Train
-model.fit(train_X, train_y, epochs=50, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
@@ -105,8 +104,6 @@ model.save('models/shape_reko_'+str(SHAPE_SIZE)+'x'+str(SHAPE_SIZE)+'.h5')
 
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
-
-test_X = test_X * st_dev_data_input 
 test_y = test_y * SHAPE_SIZE
 test_y_predictions = np.round(test_y_predictions*SHAPE_SIZE)
 
