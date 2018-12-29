@@ -11,16 +11,16 @@ from PIL import Image, ImageDraw, ImageOps
 import numpy as np
 from tensorflow.keras.models import load_model
 
-MAX_SHAPE_SIZE = 8
+MAX_SHAPE_SIZE = 32
 
-#filename = "test_extract_data/shape_test.png"
+filename = "test_extract_data/shape_test.png"
 
-filename = "test_extract_data/test.png"
+#filename = "test_extract_data/test.png"
 
 # convert image file to 1-d numpy array
 # good luck with colors
 # and make it smaller (the network expects a max input size)
-img = Image.open(filename).convert('1')
+img = Image.open(filename).convert('L')
 old_size = img.size  
 
 desired_size = MAX_SHAPE_SIZE
@@ -37,7 +37,8 @@ img = ImageOps.expand(img, padding)
 img.save("test_extract_data/new.png")
 
 img_np = np.array(img).reshape(MAX_SHAPE_SIZE, MAX_SHAPE_SIZE)
-img_np[img_np > 1] = 1
+img_np[img_np == 0] = 1
+img_np[img_np > 1] = 0
 img_np = img_np.reshape(1, -1)
 
 # load the model for shape identification 
