@@ -119,7 +119,5 @@ image_from_data(test_X[0], test_y[0], test_y_predictions[0], show=False)
 for i in range(1, len(test_y_predictions)):
     image_from_data(test_X[i], test_y[i], test_y_predictions[i], id=str(i))
 
-def calc_rate(pred_set, test_test):
-    return(np.diff(pred_set, test_test))
-
-print(calc_rate(test_y_predictions, pred_set))
+success_rate = (100 - np.mean(test_y_predictions != test_y))
+print("Success rate:", success_rate)
