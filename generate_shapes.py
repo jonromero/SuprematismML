@@ -14,10 +14,8 @@ Jon V
 """
 
 import random
-
 from PIL import Image, ImageDraw
 import numpy as np
-
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout
 
@@ -100,8 +98,8 @@ model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose
 model.summary()
 
 # save the model
-#print("----------Saving the model------------")
-#model.save('shape_reko.h5')
+print("----------Saving the model------------")
+model.save('shape_reko.h5')
 
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
