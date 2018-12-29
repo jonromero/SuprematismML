@@ -15,6 +15,8 @@ filename = "shape_test.png"
 
 # convert image file to 1-d numpy array
 # good luck with colors
+# and make it smaller (the network expects a max input size)
+
 img = Image.open(filename).convert('RGBA')
 img_np = np.array(img)
 img_np = img_np.ravel()

@@ -85,21 +85,21 @@ train_y, test_y = create_train_set(data_validate)
 
 # Build the model.
 model = Sequential([
-        Dense(100, activation='relu', input_dim=data_input.shape[-1]), 
-        Dense(100),
-        #Dropout(0.2), 
+        Dense(400, activation='relu', input_dim=data_input.shape[-1]), 
+        Dense(400),
+        Dropout(0.2), 
         Dense(data_validate.shape[-1])
     ])
 
 model.compile(optimizer='adadelta', loss='mean_squared_error')
 
 # Train
-model.fit(train_X, train_y, epochs=30, validation_data=(test_X, test_y), verbose=2)
+model.fit(train_X, train_y, epochs=50, validation_data=(test_X, test_y), verbose=2)
 model.summary()
 
 # save the model
 print("----------Saving the model------------")
-model.save('shape_reko.h5')
+model.save('shape_reko_'+str(SHAPE_SIZE)+'x'+str(SHAPE_SIZE)+'.h5')
 
 # let's try out the model 
 test_y_predictions = model.predict(test_X)
